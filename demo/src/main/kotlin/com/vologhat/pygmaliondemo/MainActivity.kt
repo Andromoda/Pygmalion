@@ -1,0 +1,23 @@
+package com.vologhat.pygmaliondemo
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.vologhat.pygmalion.Pygmalion
+import com.vologhat.pygmalion.hooks.IAssetHook
+import com.vologhat.pygmalion.hooks.assetHook
+import com.vologhat.pygmaliondemo.databinding.ActivityMainBinding
+
+class MainActivity:AppCompatActivity()
+{
+    private lateinit var binding:ActivityMainBinding
+    
+    override fun onCreate(savedInstanceState:Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        
+        binding=ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.sampleText.setTextColor(getColor(R.color.black))
+    }
+}
