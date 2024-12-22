@@ -5,7 +5,7 @@ import com.vologhat.pygmalion.Pygmalion
 import com.vologhat.pygmalion.hooks.assetHook
 
 class EntryPoint
-:Application()
+    :Application()
 {
     override fun onCreate()
     {
@@ -30,14 +30,29 @@ class EntryPoint
                             {
                                 attr==com.google.android.material.R.attr.colorPrimary ->
                                     outValue.setTo(teal200)
+                                
                                 attr==android.R.attr.statusBarColor ->
                                     outValue.setTo(teal200)
+                                
                                 attr==android.R.attr.navigationBarColor ->
                                     Pygmalion.getValue(R.color.purple_200,true,outValue=outValue)
+                                
                                 attr==android.R.attr.windowBackground ->
-                                    Pygmalion.getValue(android.R.color.holo_red_dark,true,Pygmalion.systemResources,outValue)
+                                    Pygmalion.getValue(
+                                        android.R.color.holo_red_dark,
+                                        true,
+                                        Pygmalion.systemResources,
+                                        outValue
+                                    )
+                                
                                 attr==android.R.attr.tint ->
-                                    Pygmalion.getValue(android.R.color.holo_green_dark,true,Pygmalion.systemResources,outValue)
+                                    Pygmalion.getValue(
+                                        android.R.color.holo_green_dark,
+                                        true,
+                                        Pygmalion.systemResources,
+                                        outValue
+                                    )
+                                
                                 attr==android.R.attr.colorAccent ->
                                     Pygmalion.getValue(R.color.purple_700,true,outValue=outValue)
                             }
