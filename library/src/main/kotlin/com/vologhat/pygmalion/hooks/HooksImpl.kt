@@ -1,4 +1,5 @@
 @file:Suppress("unused")
+
 package com.vologhat.pygmalion.hooks
 
 import android.os.Build
@@ -9,7 +10,7 @@ import com.vologhat.pygmalion.utils.NativeIntArray
 
 @JvmField
 internal val STYLE_NUM_ENTRIES=
-    if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q)7
+    if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q) 7
     else 6
 internal const val STYLE_TYPE=0
 internal const val STYLE_DATA=1
@@ -17,6 +18,7 @@ internal const val STYLE_ASSET_COOKIE=2
 internal const val STYLE_RESOURCE_ID=3
 internal const val STYLE_CHANGING_CONFIGURATIONS=4
 internal const val STYLE_DENSITY=5
+
 @RequiresApi(Build.VERSION_CODES.Q)
 internal const val STYLE_SOURCE_RESOURCE_ID=6
 
@@ -24,6 +26,7 @@ private fun interface IIndexedProvider
 {
     operator fun get(index:Int):Int
 }
+
 private fun interface IIndexedSupplier
 {
     operator fun set(index:Int,value:Int)
@@ -37,7 +40,7 @@ internal fun loadResourceValueHook(
     resId:Int,
     density:Short,
     outValue:TypedValue,
-    resolveAttributes:Boolean
+    resolveAttributes:Boolean,
 )=assetHooks.forEach { hook ->
     hook.onLoadResourceValueHook(resId,outValue,resolveAttributes)
 }
@@ -45,7 +48,7 @@ internal fun loadResourceValueHook(
 internal fun loadThemeAttrValueHook(
     resId:Int,
     outValue:TypedValue,
-    resolveAttrs:Boolean
+    resolveAttrs:Boolean,
 )=assetHooks.forEach { hook ->
     hook.onLoadThemeAttrValueHook(resId,outValue,resolveAttrs)
 }
@@ -55,7 +58,7 @@ internal fun applyStyleHook(
     defStyleRes:Int,
     inAttrs:IntArray,
     outValues:NativeIntArray,
-    outIndices:NativeIntArray
+    outIndices:NativeIntArray,
 )
 {
     val outTypedValued=unpackValues(inAttrs.size,outValues::get)
@@ -71,7 +74,7 @@ internal fun resolveAttrsHook(
     inValues:IntArray,
     inAttrs:IntArray,
     outValues:IntArray,
-    outIndices:IntArray
+    outIndices:IntArray,
 )
 {
     val outTypedValued=unpackValues(inAttrs.size,outValues::get)
@@ -84,7 +87,7 @@ internal fun resolveAttrsHook(
 internal fun retrieveAttrsHook(
     inAttrs:IntArray,
     outValues:IntArray,
-    outIndices:IntArray
+    outIndices:IntArray,
 )
 {
     val outTypedValued=unpackValues(inAttrs.size,outValues::get)
@@ -107,10 +110,10 @@ private fun unpackValue(index:Int,values:ValuesProvider)=
         resourceId=values[index+STYLE_RESOURCE_ID]
         changingConfigurations=values[index+STYLE_CHANGING_CONFIGURATIONS]
         density=values[index+STYLE_DENSITY]
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q)sourceResourceId=values[index+STYLE_SOURCE_RESOURCE_ID]
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q) sourceResourceId=values[index+STYLE_SOURCE_RESOURCE_ID]
     }
 
-private fun packValues(values:List< TypedValue >,valuesProvider:ValuesSupplier)=
+private fun packValues(values:List<TypedValue>,valuesProvider:ValuesSupplier)=
     values.forEachIndexed { index,value ->
         packValue(index*STYLE_NUM_ENTRIES,value,valuesProvider)
     }
@@ -123,5 +126,5 @@ private fun packValue(index:Int,value:TypedValue,values:ValuesSupplier)
     values[index+STYLE_RESOURCE_ID]=value.resourceId
     values[index+STYLE_CHANGING_CONFIGURATIONS]=value.changingConfigurations
     values[index+STYLE_DENSITY]=value.density
-    if(Build.VERSION.SDK_INT>Build.VERSION_CODES.P)values[index+STYLE_SOURCE_RESOURCE_ID]=value.sourceResourceId
+    if(Build.VERSION.SDK_INT>Build.VERSION_CODES.P) values[index+STYLE_SOURCE_RESOURCE_ID]=value.sourceResourceId
 }

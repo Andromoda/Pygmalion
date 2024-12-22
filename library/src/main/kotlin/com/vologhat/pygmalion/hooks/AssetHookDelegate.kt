@@ -1,7 +1,7 @@
 package com.vologhat.pygmalion.hooks
 
-import android.util.TypedValue
 import android.content.res.TypedArray
+import android.util.TypedValue
 
 /**
  * The container used to pass information about single [TypedValue]
@@ -9,7 +9,7 @@ import android.content.res.TypedArray
 class Asset internal constructor(
     val resId:Int,
     val outValue:TypedValue,
-    val resolveAttrs:Boolean
+    val resolveAttrs:Boolean,
 )
 
 /**
@@ -21,7 +21,7 @@ class Assets internal constructor(
     val defStyleRes:Int=0,
     val inValues:IntArray=intArrayOf(),
     val inAttrs:IntArray,
-    val outValues:List< TypedValue >
+    val outValues:List<TypedValue>,
 )
 
 private class AssetHookDelegate(
@@ -29,35 +29,36 @@ private class AssetHookDelegate(
     private val onLoadThemeAttrValueBlock:(Asset) -> Unit,
     private val onApplyStyleBlock:(Assets) -> Unit,
     private val onResolveAttrsBlock:(Assets) -> Unit,
-    private val onRetrieveAttrsBlock:(Assets) -> Unit
+    private val onRetrieveAttrsBlock:(Assets) -> Unit,
 ):IAssetHook
 {
     override fun onLoadResourceValueHook(
         resId:Int,
         outValue:TypedValue,
-        resolveAttrs:Boolean
+        resolveAttrs:Boolean,
     )
     {
         onLoadResourceValueBlock(
             Asset(resId,outValue,resolveAttrs)
         )
     }
-
+    
     override fun onLoadThemeAttrValueHook(
         resId:Int,
         outValue:TypedValue,
-        resolveAttrs:Boolean
-    ) {
+        resolveAttrs:Boolean,
+    )
+    {
         onLoadThemeAttrValueBlock(
             Asset(resId,outValue,resolveAttrs)
         )
     }
-
+    
     override fun onApplyStyleHook(
         defStyleAttr:Int,
         defStyleRes:Int,
         inAttrs:IntArray,
-        outValues:List< TypedValue >
+        outValues:List<TypedValue>,
     )
     {
         onApplyStyleBlock(
@@ -69,13 +70,13 @@ private class AssetHookDelegate(
             )
         )
     }
-
+    
     override fun onResolveAttrsHook(
         defStyleAttr:Int,
         defStyleRes:Int,
         inValues:IntArray,
         inAttrs:IntArray,
-        outValues:List< TypedValue >
+        outValues:List<TypedValue>,
     )
     {
         onResolveAttrsBlock(
@@ -88,10 +89,10 @@ private class AssetHookDelegate(
             )
         )
     }
-
+    
     override fun onRetrieveAttrsHook(
         inAttrs:IntArray,
-        outValues:List< TypedValue >
+        outValues:List<TypedValue>,
     )
     {
         onRetrieveAttrsBlock(
@@ -110,27 +111,37 @@ class AssetHookBuilder internal constructor()
     private var onApplyStyleBlock:Assets.() -> Unit={}
     private var onResolveAttrsBlock:Assets.() -> Unit={}
     private var onRetrieveAttrsBlock:Assets.() -> Unit={}
-
+    
     @JvmSynthetic
     fun onLoadResourceValue(block:(asset:Asset) -> Unit)
-    { onLoadResourceValueBlock=block }
-
+    {
+        onLoadResourceValueBlock=block
+    }
+    
     @JvmSynthetic
     fun onLoadThemeAttrValue(block:(asset:Asset) -> Unit)
-    { onLoadThemeAttrValueBlock=block }
-
+    {
+        onLoadThemeAttrValueBlock=block
+    }
+    
     @JvmSynthetic
     fun onApplyStyle(block:(assets:Assets) -> Unit)
-    { onApplyStyleBlock=block }
-
+    {
+        onApplyStyleBlock=block
+    }
+    
     @JvmSynthetic
     fun onResolveAttrs(block:(assets:Assets) -> Unit)
-    { onResolveAttrsBlock=block }
-
+    {
+        onResolveAttrsBlock=block
+    }
+    
     @JvmSynthetic
     fun onRetrieveAttrs(block:(assets:Assets) -> Unit)
-    { onRetrieveAttrsBlock=block }
-
+    {
+        onRetrieveAttrsBlock=block
+    }
+    
     @JvmSynthetic
     internal fun build():IAssetHook=
         AssetHookDelegate(

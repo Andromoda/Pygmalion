@@ -13,14 +13,14 @@ import com.vologhat.pygmalion.hooks.retrieveAttrsHook
 import com.vologhat.pygmalion.utils.NativeIntArray
 
 fun nativeGetResourceValue(
-    ptr: Long,
+    ptr:Long,
     resId:Int,
     density:Short,
     outValue:TypedValue,
-    resolveRefs:Boolean
+    resolveRefs:Boolean,
 ):Int
 {
-    loadResourceValueHook(resId, density, outValue, resolveRefs)
+    loadResourceValueHook(resId,density,outValue,resolveRefs)
     return 0
 }
 
@@ -29,7 +29,7 @@ fun nativeThemeGetAttributeValue(
     theme:Long,
     resId:Int,
     outValue:TypedValue,
-    resolveRefs:Boolean
+    resolveRefs:Boolean,
 ):Int
 {
     loadThemeAttrValueHook(resId,outValue,resolveRefs)
@@ -44,7 +44,7 @@ fun nativeApplyStyle(
     xmlParserPtr:Long,
     inAttrs:IntArray,
     outValuesAddress:Long,
-    outIndicesAddress:Long
+    outIndicesAddress:Long,
 )
 {
     val len=inAttrs.size
@@ -61,7 +61,7 @@ fun nativeResolveAttrs(
     inValues:IntArray,
     inAttrs:IntArray,
     outValues:IntArray,
-    outIndices:IntArray
+    outIndices:IntArray,
 ):Boolean
 {
     resolveAttrsHook(defStyleAttr,defStyleRes,inValues,inAttrs,outValues,outIndices)
@@ -74,7 +74,7 @@ fun nativeRetrieveAttributes(
     inAttrs:IntArray,
     outValues:IntArray,
     outIndices:
-    IntArray
+    IntArray,
 ):Boolean
 {
     retrieveAttrsHook(inAttrs,outValues,outIndices)

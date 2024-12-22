@@ -1,4 +1,5 @@
 @file:JvmName("Pygmalion")
+
 package com.vologhat.pygmalion
 
 import android.annotation.SuppressLint
@@ -18,69 +19,72 @@ object Pygmalion
             val appGlobalsClz=Class.forName("android.app.AppGlobals")
             val getInitialApplicationMtd=
                 appGlobalsClz.getDeclaredMethod("getInitialApplication")
-                    .apply { isAccessible = true }
+                    .apply { isAccessible=true }
             getInitialApplicationMtd.invoke(null) as Application
         }
-
+    
     /** System resources */
     @JvmStatic
     inline val systemResources
         get()=Resources.getSystem()
+    
     /** Application resources */
     @JvmStatic
     val resources
         get()=app.resources
-
+    
     /** The activity callbacks for Pygmalion */
-    private val activityCallbacks=mutableSetOf< Application.ActivityLifecycleCallbacks >()
+    private val activityCallbacks=mutableSetOf<Application.ActivityLifecycleCallbacks>()
+    
     /** The asset hooks */
     @JvmField
-    internal val assetHooks=mutableSetOf< IAssetHook >()
-
-    init {
+    internal val assetHooks=mutableSetOf<IAssetHook>()
+    
+    init
+    {
         System.loadLibrary("pygmalion")
     }
-
+    
     /** Checks if initialized successfully */
     @JvmStatic
     external fun isInitialized():Boolean
-
+    
     /** Enables hooking */
     @JvmStatic
     external fun hook():Boolean
-
+    
     /** Disables hooking */
     @JvmStatic
     external fun unhook():Boolean
-
+    
     /** @see Application.registerActivityLifecycleCallbacks */
     @JvmStatic
     fun registerActivityLifecycleCallbacks(vararg callbacks:Application.ActivityLifecycleCallbacks)=
         callbacks.forEach(app::registerActivityLifecycleCallbacks)
-
+    
     @JvmStatic
     fun unregisterAllActivityLifecycleCallbacks()=
         unregisterActivityLifecycleCallbacks(*activityCallbacks.toTypedArray())
-
+    
     /** @see Application.unregisterActivityLifecycleCallbacks */
     @JvmStatic
     fun unregisterActivityLifecycleCallbacks(vararg callbacks:Application.ActivityLifecycleCallbacks)=
         callbacks.forEach(app::unregisterActivityLifecycleCallbacks)
-
+    
     /** Register [hooks] */
     @JvmStatic
     fun registerAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.addAll(hooks)
-
+    
     @JvmStatic
     fun unregisterAllAssetHooks()=
         unregisterAssetHooks(*assetHooks.toTypedArray())
-
+    
     /** Unregister [hooks] */
     @JvmStatic
     fun unregisterAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.removeAll(hooks)
-
+    
     /**
      * The analogue of [Resources.getValue]
      * where you don't need to pass [outValue] every time
@@ -93,9 +97,9 @@ object Pygmalion
         resId:Int,
         resolveRefs:Boolean=true,
         source:Resources=resources,
-        outValue:TypedValue=TypedValue()
+        outValue:TypedValue=TypedValue(),
     )=outValue.also { source.getValue(resId,it,resolveRefs) }
-
+    
     /**
      * The analogue of [Resources.getValue]
      * where you don't need to pass [outValue] every time.
@@ -105,8 +109,10 @@ object Pygmalion
      * @see [Resources.getIdentifier]
      * @see [Resources.getValue]
      */
-    @Discouraged(message="Usage of this function is discouraged. " +
-            "Recommends to retrieve resources by their identifiers.")
+    @Discouraged(
+        message="Usage of this function is discouraged. "+
+                "Recommends to retrieve resources by their identifiers."
+    )
     @SuppressLint("DiscouragedApi")
     @JvmStatic
     @JvmOverloads
@@ -116,14 +122,16 @@ object Pygmalion
         defPackage:String?=null,
         resolveRefs:Boolean=true,
         source:Resources=resources,
-        outValue:TypedValue=TypedValue()
+        outValue:TypedValue=TypedValue(),
     )=outValue.also {
         when
         {
-            !defType.isNullOrBlank()&&!defPackage.isNullOrBlank() -> {
+            !defType.isNullOrBlank()&&!defPackage.isNullOrBlank() ->
+            {
                 val resId=source.getIdentifier(name,defType,defPackage)
                 getValue(resId,resolveRefs,source,it)
             }
+            
             else -> source.getValue(name,it,resolveRefs)
         }
     }
