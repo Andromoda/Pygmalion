@@ -1,4 +1,4 @@
-package com.vologhat.pygmalion.hooks;
+package com.vologhat.pygmalion.hooks
 
 import android.content.res.Resources
 import android.util.TypedValue
@@ -6,6 +6,7 @@ import android.util.TypedValue
 typealias TypedValuesList=List< @JvmSuppressWildcards TypedValue >
 
 /** The asset hook interface */
+@JvmDefaultWithoutCompatibility
 interface IAssetHook
 {
     /** See [Resources.getValue] */

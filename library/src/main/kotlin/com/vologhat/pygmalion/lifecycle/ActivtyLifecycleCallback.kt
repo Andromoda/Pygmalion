@@ -138,7 +138,6 @@ class ActivityLifecycleCallbacks internal constructor(
     }
 }
 
-
 class ActivityLifecycleCallbackBuilder internal constructor() {
     private var onPreCreated: OnActivityPreCreatedCallback? = null
     private var onCreated: OnActivityCreatedCallback? = null
