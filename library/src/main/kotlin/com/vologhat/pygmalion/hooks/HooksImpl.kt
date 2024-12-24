@@ -53,6 +53,21 @@ internal fun loadThemeAttrValueHook(
     hook.onLoadThemeAttrValueHook(resId,outValue,resolveAttrs)
 }
 
+internal fun applyStyleHookLegacy(
+    defStyleAttr:Int,
+    defStyleRes:Int,
+    inAttrs:IntArray,
+    outValues:IntArray,
+    outIndices:IntArray,
+)
+{
+    val outTypedValues=unpackValues(inAttrs.size,outValues::get)
+    assetHooks.forEach { hook ->
+        hook.onApplyStyleHook(defStyleAttr,defStyleRes,inAttrs,outTypedValues)
+    }
+    packValues(outTypedValues,outValues::set)
+}
+
 internal fun applyStyleHook(
     defStyleAttr:Int,
     defStyleRes:Int,

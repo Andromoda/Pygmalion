@@ -15,19 +15,26 @@ typedef struct JNINativeMethodHook_t
     void* fn_hook_ptr;
 } jni_hook_t;
 
+//strip
+static constexpr char* strip_opt_flag(const char* sign)
+{
+    auto res=const_cast< char* >(sign);
+    return *res=='!'?++res:res;
+}
+
+bool hook_assetman(JNIEnv* env,JNINativeMethod* gMethods,int numMethods);
+
 #define HOOK_BODY_VOID(symb,env,clz,hook_clz,...) \
 orig_##symb(env,clz,##__VA_ARGS__); \
-const auto& hook_fn_info=g##symb.fn_info; \
-static jmethodID mtd=env->GetStaticMethodID(hook_clz,hook_fn_info.name,hook_fn_info.signature); \
+const auto& hook_fn_info=g##symb.fn_info;         \
+static jmethodID mtd=env->GetStaticMethodID(hook_clz,hook_fn_info.name,strip_opt_flag(hook_fn_info.signature)); \
 env->CallStaticVoidMethod(hook_clz,mtd,##__VA_ARGS__);
 
 #define HOOK_BODY_T(symb,ret_t,fun_suffix,env,clz,hook_clz,...) \
 const auto& res=orig_##symb(env,clz,##__VA_ARGS__);              \
-\
-const auto& hook_fn_info=g##symb.fn_info;                                                                \
-static jmethodID mtd=env->GetStaticMethodID(hook_clz,hook_fn_info.name,hook_fn_info.signature); \
+const auto& hook_fn_info=g##symb.fn_info; \
+static jmethodID mtd=env->GetStaticMethodID(hook_clz,hook_fn_info.name,strip_opt_flag(hook_fn_info.signature)); \
 env->CallStatic##fun_suffix##Method(hook_clz,mtd,##__VA_ARGS__); \
-                                                                \
 return res
 
 #define HOOK_BODY_BOOL(symb,env,clz,hook_clz,...) HOOK_BODY_T(symb,jboolean,Boolean,env,clz,hook_clz,##__VA_ARGS__)
@@ -48,7 +55,5 @@ static jni_hook_t g##symb                            \
     (void*)hook_##symb                                \
 };                                   \
 ret_t hook_##symb(JNIEnv* env,jclass clazz,##args_t)
-
-jint hook_assetman(JNIEnv* env,JNINativeMethod* gMethods,int numMethods);
 
 #endif //PYGMALION_HOOK_ASSETMAN_H
