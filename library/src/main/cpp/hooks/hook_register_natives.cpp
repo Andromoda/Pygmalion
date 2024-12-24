@@ -3,6 +3,7 @@
 //
 
 #include <jni_aux.h>
+#include <android/api-level.h>
 #include <dlfcn.h>
 
 #include "macros.h"
@@ -54,8 +55,42 @@ install_hook_name(RegisterNativeMethods,jint,
     gHookAssetManagerMethods=new JNINativeMethod[nMethods];
     memcpy(gHookAssetManagerMethods,gMethods,sizeof(JNINativeMethod)*nMethods);
 
-    replace_ptrs(gHookAssetManagerMethods,nMethods,gHooksPostOreo,NELEM(gHooksPostOreo));
+    jni_hook_t* hooks;
+    size_t nhooks;
 
+    switch(android_get_device_api_level())
+    {
+        case __ANDROID_API_L__:
+        case __ANDROID_API_L_MR1__:
+        case __ANDROID_API_M__:
+            hooks=gHooksPreNougat;
+            nhooks=NELEM(gHooksPreNougat);
+            break;
+        case __ANDROID_API_N__:
+        case __ANDROID_API_N_MR1__:
+            hooks=gHooksNougat;
+            nhooks=NELEM(gHooksNougat);
+            break;
+        case __ANDROID_API_O__:
+        case __ANDROID_API_O_MR1__:
+            hooks=gHooksOreo;
+            nhooks=NELEM(gHooksOreo);
+            break;
+        case __ANDROID_API_Q__:
+        case __ANDROID_API_R__:
+        case __ANDROID_API_S__:
+        case __ANDROID_API_T__:
+        case __ANDROID_API_U__:
+        case __ANDROID_API_V__:
+            hooks=gHooksPostOreo;
+            nhooks=NELEM(gHooksPostOreo);
+            break;
+        default:
+            gIsInitialized=false;
+            return 0;
+    }
+
+    replace_ptrs(gHookAssetManagerMethods,nMethods,hooks,nhooks);
     return 0;
 }
 
@@ -101,12 +136,12 @@ jboolean jis_initialized(JNIEnv*,jclass)
 
 jboolean jhook(JNIEnv* env,jclass)
 {
-    if(!gIsInitialized)return false;
-    return hook_assetman(env,gHookAssetManagerMethods,gNumAssetManagerMethods);
+    return gIsInitialized
+        &&hook_assetman(env,gHookAssetManagerMethods,gNumAssetManagerMethods);
 }
 
 jboolean junhook(JNIEnv* env,jclass)
 {
-    if(!gIsInitialized)return false;
-    return hook_assetman(env,gAssetManagerMethods,gNumAssetManagerMethods);
+    return gIsInitialized
+       &&hook_assetman(env,gHookAssetManagerMethods,gNumAssetManagerMethods);
 }

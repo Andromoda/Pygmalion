@@ -9,6 +9,7 @@ import android.util.TypedValue
 import androidx.annotation.Discouraged
 import com.vologhat.pygmalion.hooks.IAssetHook
 
+@Suppress("KotlinJniMissingFunction")
 object Pygmalion
 {
     /** Global application instance */

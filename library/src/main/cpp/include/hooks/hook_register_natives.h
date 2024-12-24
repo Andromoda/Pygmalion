@@ -10,6 +10,9 @@
 #include "macros.h"
 #include "sys_paths.h"
 #include "dobby.h"
+#include "hooks/assetman/api/hooks_prenougat.h"
+#include "hooks/assetman/api/hooks_nougat.h"
+#include "hooks/assetman/api/hooks_oreo.h"
 #include "hooks/assetman/api/hooks_postoreo.h"
 
 #define LIB_ANDROID_RUNTIME "libandroid_runtime.so"
