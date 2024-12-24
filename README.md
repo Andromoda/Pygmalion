@@ -5,7 +5,7 @@
 `pygmalion` is a `non-root` standalone `android` library needed for theming `android` applications
 by creating hooks for `AssetManager` and `Activity`.
 
-Supports `Android 9.0 - Android 15` devices with `x86`, `x86_64`, `arm`, and `arm64` architectures.
+Supports `Android 5.0 - Android 15` devices with `x86`, `x86_64`, `arm`, and `arm64` architectures.
 
 ## Disclaimer
 I and the contributors take no responsibility for, and will not be liable for,
@@ -17,7 +17,7 @@ future updates.
 I do this library for my current and future projects. One of the main goals is providing ability to
 add flexible and powerful theming support to `android` application modifications for cases when you have no source code
 
-### Goals
+### TODO
 1. Optimize work with native hooks
 2. Add `LayoutInflater` hooks
 3. etc.
