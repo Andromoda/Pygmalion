@@ -2,37 +2,68 @@
 
 [English](README.md) | [Русский](README_RU.md)
 
-`pygmalion` is a `non-root` standalone `android` library needed for theming `android` applications
+`pygmalion` is a standalone `non-root` `android` library needed for theming applications
 by creating hooks for `AssetManager` and `Activity`.
 
-Supports `Android 5.0 - Android 15` devices with `x86`, `x86_64`, `arm`, and `arm64` architectures.
+Supports `Android 5.0 - Android 15` devices with `x86`, `x86_64`, `arm32`, and `arm64` architectures.
 
 ## Disclaimer
-I and the contributors take no responsibility for, and will not be liable for,
-any problems caused by the using of this library in your projects.
-Also, this project is in alpha version now because I can't guarantee backward compatibility support with
-future updates.
+I and the contributors take no responsibility for any problems caused by the using of this library
+in your projects.
+Also this project is in alpha version because **I can't guarantee backward compatibility support with
+future updates**.
+
+## Motivation
+Initially this project was my weird idea to customize android apps without `root`, `xposed`, etc. and I didn't plan to 
+use native. But in the end it was the only way to hook `AssetManager`. Also I don't want to use any
+`ART hooking framework` because they're more unstable than my method.
 
 ## Project Description
-I do this library for my current and future projects. One of the main goals is providing ability to
-add flexible and powerful theming support to `android` application modifications for cases when you have no source code
+`pygmlion` needs for cases when you want to add theming support(ex. changing accent colors),
+but you have no source code of target app.
+To use it, you should know about **complex** and **value-based (primitive)** resources 
+(see [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)),
+also you can check [AssetManager](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/AssetManager.java),
+[Resources](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Resources.java),
+[TypeValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
+and [TypedArray](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/TypedArray.java) sources
+**for specific platform**.
 
-### TODO
-1. Optimize work with native hooks
-2. Add `LayoutInflater` hooks
-3. etc.
+## How it works
+`pygmalion` works with two layers:
+- **Java layer** provides API for making hooks for `AssetManager` and `Activity`
+- **Native layer** uses for hooking `AssetManager` native functions related with resources. by re-registring `JNI` functions related with resources to
+interact with fetched data (attribute ids, resource values, etc.) before it will be returned.
 
-### Limitations
-1. Now, you can hook only `AssetManager` and `Activity` by default.
-2. You can only change providing attributes in the `AssetManager` hooks
+On the **Native layer**, `pygmalion` hooks function with signature `_ZN7android37register_android_content_AssetManagerEP7_JNIEnv`
+that's used to register all `AssetManager` `JNI` functions and dumps original function addresses. Next,
+target functions are found by hardcoded signatures and replaced to the stub functions that calls
+Java functions with logic implementation. This way is more stable than some `ART hooking framework` because there's
+used built-in `JNI` API and tested libraries.
 
-### Sub-projects:
-1. The `library` project is a core implementation of `pygmalion` providing API needed for development.
-2. The `demo` project is an `android` application developed as "gallery" for demonstration.  
-3. the `stub` project only provided private `android` `api`s that can't be accessed directly.
+❗ **For Android N, `pygmalion` disables `@FastNative` optimizations
+that causes crashes**.
+
+**For more details, see headers in the `include/hooks/assetman/api` for native
+and `com.vologhat.pygmalion.hooks` package for Java**
+
+## TODO
+- Optimize work with native hooks
+- Add `LayoutInflater` hooks 
+- etc.
+
+## Limitations
+- Now, you can hook only `AssetManager` and `Activity` by default.
+- In the `AssetManager` hooks you can only replace providing resources
+(ex. you cannot add/remove color attribute with related value)
+
+## Sub-projects:
+- `library` is a core implementation of `pygmalion` providing API needed for making hooks. 
+- `demo` is an android application developed as a "gallery" for demonstration.  
+- `stub` only provided private android APIs that can't be accessed directly.
 
 ## Use cases
-I don't recommend to use this library in the regular `android` development. It needs for cases when
+I don't recommend to use this library in the regular android development. It needs for cases when
 you have no source code, for example, android app modifications such as [Revanced's mods](https://revanced.app/),
 [VTLIte](https://github.com/vtosters/lite), etc.
 
@@ -79,7 +110,6 @@ Pygmalion.unhook()
 ```
 
 ### Hooks
-
 
 #### Add/remove `AssetManager` hooks:
 
@@ -218,5 +248,3 @@ public class HooksExample {
     }
 }
 ```
-
-#### For more details, see `demo` project and `library` sources
