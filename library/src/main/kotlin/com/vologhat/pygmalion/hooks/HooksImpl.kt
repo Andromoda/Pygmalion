@@ -76,11 +76,11 @@ internal fun applyStyleHook(
     outIndices:NativeIntArray,
 )
 {
-    val outTypedValued=unpackValues(inAttrs.size,outValues::get)
+    val outTypedValues=unpackValues(inAttrs.size,outValues::get)
     assetHooks.forEach { hook ->
-        hook.onApplyStyleHook(defStyleAttr,defStyleRes,inAttrs,outTypedValued)
+        hook.onApplyStyleHook(defStyleAttr,defStyleRes,inAttrs,outTypedValues)
     }
-    packValues(outTypedValued,outValues::set)
+    packValues(outTypedValues,outValues::set)
 }
 
 internal fun resolveAttrsHook(
@@ -92,11 +92,11 @@ internal fun resolveAttrsHook(
     outIndices:IntArray,
 )
 {
-    val outTypedValued=unpackValues(inAttrs.size,outValues::get)
+    val outTypedValues=unpackValues(inAttrs.size,outValues::get)
     assetHooks.forEach { hook ->
-        hook.onResolveAttrsHook(defStyleAttr,defStyleRes,inValues,inAttrs,outTypedValued)
+        hook.onResolveAttrsHook(defStyleAttr,defStyleRes,inValues,inAttrs,outTypedValues)
     }
-    packValues(outTypedValued,outValues::set)
+    packValues(outTypedValues,outValues::set)
 }
 
 internal fun retrieveAttrsHook(
@@ -105,11 +105,11 @@ internal fun retrieveAttrsHook(
     outIndices:IntArray,
 )
 {
-    val outTypedValued=unpackValues(inAttrs.size,outValues::get)
+    val outTypedValues=unpackValues(inAttrs.size,outValues::get)
     assetHooks.forEach { hook ->
-        hook.onRetrieveAttrsHook(inAttrs,outTypedValued)
+        hook.onRetrieveAttrsHook(inAttrs,outTypedValues)
     }
-    packValues(outTypedValued,outValues::set)
+    packValues(outTypedValues,outValues::set)
 }
 
 private fun unpackValues(length:Int,values:ValuesProvider)=
