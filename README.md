@@ -7,11 +7,11 @@ by creating hooks for `AssetManager` and `Activity`.
 
 Supports `Android 5.0 - Android 15` devices with `x86`, `x86_64`, `arm32`, and `arm64` architectures.
 
-## Disclaimer
-I and the contributors take no responsibility for any problems caused by the using of this library
-in your projects.
-Also this project is in alpha version because **I can't guarantee backward compatibility support with
-future updates**.
+> [!CAUTION]
+> I and the contributors take no responsibility for any problems caused by the using of this library
+> in your projects.
+> Also this project is in alpha version because **I can't guarantee backward compatibility support with
+> future updates**.
 
 ## Motivation
 Initially this project was my weird idea to customize android apps without `root`, `xposed`, etc. and I didn't plan to 
@@ -25,7 +25,7 @@ To use it, you should know about **complex** and **value-based (primitive)** res
 (see [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)),
 also you can check [AssetManager](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/AssetManager.java),
 [Resources](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Resources.java),
-[TypeValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
+[TypedValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
 and [TypedArray](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/TypedArray.java) sources
 **for specific platform**.
 
@@ -41,11 +41,12 @@ target functions are found by hardcoded signatures and replaced to the stub func
 Java functions with logic implementation. This way is more stable than some `ART hooking framework` because there's
 used built-in `JNI` API and tested libraries.
 
-❗ **For Android N, `pygmalion` disables `@FastNative` optimizations
-that causes crashes**.
+> [!NOTE]
+> For Android N, `pygmalion` disables `@FastNative` optimizations that causes crashes.
 
-**For more details, see headers in the `include/hooks/assetman/api` for native
-and `com.vologhat.pygmalion.hooks` package for Java**
+> [!TIP]
+> For more details, see headers in the `include/hooks/assetman/api` for native
+> and `com.vologhat.pygmalion.hooks` package for Java
 
 ## TODO
 - Optimize work with native hooks
@@ -68,6 +69,7 @@ you have no source code, for example, android app modifications such as [Revance
 [VTLIte](https://github.com/vtosters/lite), etc.
 
 ## Integration
+> [!NOTE]
 > Download the latest [Release version](https://github.com/Andromoda/Pygmalion/releases/latest)
 > arr and add it to your project dependencies
 
@@ -92,7 +94,7 @@ dependencies {
 ## Development
 
 ### Initialization
-`pygmalion` provides API for manually control:
+ `pygmalion` provides API for manually control:
 
 ```kotlin
 /*

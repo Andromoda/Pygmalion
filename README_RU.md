@@ -7,10 +7,10 @@
 
 Поддерживает `Android 5.0 - Android 15` устройства с `x86`, `x86_64`, `arm32`, и `arm64` архитектурами.
 
-## Дисклеймер
-Я и контрибьютеры не несём за любой приченённый вред, вызванный
-использованием этой библиотеки в ваших проектах. Также этот проект находится в альфа-стадии, поэтому
-**обратная совметимость с будущими обновлениями не гарантируется.** 
+> [!CAUTION]
+> Я и контрибьютеры не несём за любой приченённый вред, вызванный
+> использованием этой библиотеки в ваших проектах. Также этот проект находится в альфа-стадии, поэтому
+> **обратная совметимость с будущими обновлениями не гарантируется.** 
 
 ## Мотивация
 Изначально это была странная идея создания средства для кастомизации приложений без `root`, `xposed` и т.п.,
@@ -25,7 +25,7 @@
 (см. [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)).
 Также вы можете ознакомиться с исходным кодом [AssetManager](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/AssetManager.java),
 [Resources](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Resources.java),
-[TypeValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
+[TypedValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
 и [TypedArray](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/TypedArray.java)
 **для определённых платформ**.
 
@@ -40,11 +40,13 @@
 Java-функции с реализацией логики. Этот способ более стабилен, чем многие `ART hooking` фреймфорки, потому что там
 используется встроенный `JNI` API и проверенные библиотеки.
 
-❗ **Для Android N `pygmalion` отключает `@FastNative` оптимизации,
-которые приводят к сбоям**.
+> [!NOTE]
+> Для Android N `pygmalion` отключает `@FastNative` оптимизации,
+которые приводят к сбоям.
 
-**Более подробную информацию см. в заголовках в `include/hooks/assetman/api` для натива
-и `com.vologhat.pygmalion.hooks` для Java**
+> [!TIP]
+> Более подробную информацию см. в заголовках в `include/hooks/assetman/api` для натива
+> и `com.vologhat.pygmalion.hooks` для Java
 
 ## TODO
 - Оптимизировать работу с нативными хуками
