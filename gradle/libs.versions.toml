@@ -1,6 +1,5 @@
 [versions]
 agp = "8.7.1"
-fatAarAndroid = "1.4.1"
 kotlin = "2.1.0"
 coreKtx = "1.15.0"
 appcompat = "1.7.0"
@@ -10,7 +9,6 @@ annotationJvm = "1.9.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-fatAarAndroid = { module = "com.github.aasitnikov:fat-aar-android", version.ref = "fatAarAndroid" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
