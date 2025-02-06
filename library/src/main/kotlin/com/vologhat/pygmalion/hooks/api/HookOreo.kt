@@ -28,7 +28,6 @@ object HookOreo
     fun loadThemeAttributeValue(
         theme:Long,
         ident:Int,
-        density:Short,
         outValue:TypedValue,
         resolve:Boolean,
     ):Int

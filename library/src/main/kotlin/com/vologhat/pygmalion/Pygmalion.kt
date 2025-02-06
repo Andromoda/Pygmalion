@@ -40,12 +40,14 @@ object Pygmalion
     /** The asset hooks */
     @JvmField
     internal val assetHooks=mutableSetOf<IAssetHook>()
-    
-    init
+
+    private var isLibraryLoaded=false
+
+    fun initialize()
     {
-        System.loadLibrary("pygmalion")
+        if(!isLibraryLoaded)System.loadLibrary("pygmalion")
     }
-    
+
     /** Checks if initialized successfully */
     @JvmStatic
     external fun isInitialized():Boolean

@@ -6,14 +6,14 @@
 #define PYGMALION_HOOK_REGISTER_NATIVES_H
 
 #include <jni.h>
+#include <android/api-level.h>
+#include <dlfcn.h>
 
 #include "macros.h"
 #include "sys_paths.h"
 #include "dobby.h"
-#include "hooks/assetman/api/hooks_prenougat.h"
-#include "hooks/assetman/api/hooks_nougat.h"
-#include "hooks/assetman/api/hooks_oreo.h"
-#include "hooks/assetman/api/hooks_postoreo.h"
+
+#include "AssetManagerHookFactory.h"
 
 #define LIB_ANDROID_RUNTIME "libandroid_runtime.so"
 #define LIB_ANDROID_RUNTIME_PATH SYSTEM_LIB_PATH LIB_ANDROID_RUNTIME
