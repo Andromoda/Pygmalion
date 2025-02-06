@@ -4,7 +4,6 @@ package com.vologhat.pygmalion.utils
 
 import android.annotation.SuppressLint
 import sun.misc.Unsafe
-import java.util.Objects
 
 /** Unsafe instance used to get/modify natively allocated data */
 @SuppressLint("DiscouragedPrivateApi")
@@ -30,11 +29,11 @@ class NativeByteArray(
 ):NativeArray<Byte>
 {
     override fun get(index:Int)=
-        UNSAFE.getByte(baseAddr+Objects.checkIndex(index,length)*SCALE)
+        UNSAFE.getByte(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Byte)
     {
-        UNSAFE.putByte(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putByte(baseAddr+index*SCALE,value)
     }
     
     companion object
@@ -50,11 +49,11 @@ class NativeShortArray(
 ):NativeArray<Short>
 {
     override fun get(index:Int)=
-        UNSAFE.getShort(baseAddr+Objects.checkIndex(index,length)*SCALE)
+        UNSAFE.getShort(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Short)
     {
-        UNSAFE.putShort(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putShort(baseAddr+index*SCALE,value)
     }
     
     companion object
@@ -70,11 +69,11 @@ class NativeCharArray(
 ):NativeArray<Char>
 {
     override fun get(index:Int)=
-        UNSAFE.getChar(baseAddr+Objects.checkIndex(index,length)*SCALE)
+        UNSAFE.getChar(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Char)
     {
-        UNSAFE.putChar(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putChar(baseAddr+index*SCALE,value)
     }
     
     companion object
@@ -90,11 +89,11 @@ class NativeIntArray(
 ):NativeArray<Int>
 {
     override fun get(index:Int)=
-        UNSAFE.getInt(baseAddr+Objects.checkIndex(index,length)*SCALE)
+        UNSAFE.getInt(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Int)
     {
-        UNSAFE.putInt(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putInt(baseAddr+index*SCALE,value)
     }
     
     companion object
@@ -110,11 +109,11 @@ class NativeLongArray(
 ):NativeArray<Long>
 {
     override fun get(index:Int)=
-        UNSAFE.getLong(baseAddr+Objects.checkIndex(index,length)*SCALE)
+        UNSAFE.getLong(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Long)
     {
-        UNSAFE.putLong(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putLong(baseAddr+index*SCALE,value)
     }
     
     companion object
@@ -130,11 +129,11 @@ class NativeFloatArray(
 ):NativeArray<Float>
 {
     override fun get(index:Int)=
-        UNSAFE.getFloat(baseAddr+Objects.checkIndex(index,length)*SCALE)
+        UNSAFE.getFloat(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Float)
     {
-        UNSAFE.putFloat(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putFloat(baseAddr+index*SCALE,value)
     }
     
     companion object
@@ -150,11 +149,11 @@ class NativeDoubleArray(
 ):NativeArray<Double>
 {
     override fun get(index:Int)=
-        UNSAFE.getDouble(baseAddr+Objects.checkIndex(index,length)+SCALE)
+        UNSAFE.getDouble(baseAddr+index*SCALE)
     
     override fun set(index:Int,value:Double)
     {
-        UNSAFE.putDouble(baseAddr+Objects.checkIndex(index,length)*SCALE,value)
+        UNSAFE.putDouble(baseAddr+index*SCALE,value)
     }
     
     companion object

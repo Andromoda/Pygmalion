@@ -1,6 +1,8 @@
 package com.vologhat.pygmaliondemo
 
 import android.app.Application
+import android.nfc.Tag
+import android.util.Log
 import com.vologhat.pygmalion.Pygmalion
 import com.vologhat.pygmalion.hooks.assetHook
 
@@ -11,7 +13,10 @@ class EntryPoint
     {
         super.onCreate()
         
+        //initialize pygmalion
+        Pygmalion.initialize()
         //check if pygmalion is initialized
+        Log.d("Pygmalion","${Pygmalion.isInitialized()}")
         if(Pygmalion.isInitialized())
         {
             //get original resource value before hooking

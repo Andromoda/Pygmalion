@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include "hooks/hook_register_natives.h"
+#include "hook_register_natives.h"
 
 extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm,void* reserved)
 {
