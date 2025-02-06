@@ -5,7 +5,7 @@
 `pygmalion` is a standalone `non-root` `android` library needed for theming applications
 by creating hooks for `AssetManager` and `Activity`.
 
-Supports `Android 5.0 - Android 15` devices with `x86`, `x86_64`, `arm32`, and `arm64` architectures.
+Supports `Android 5.0 - Android 15+` devices with `x86`, `x86_64`, `arm32`, and `arm64` architectures.
 
 > [!CAUTION]
 > I and the contributors take no responsibility for any problems caused by the using of this library
@@ -32,35 +32,31 @@ and [TypedArray](https://cs.android.com/android/platform/superproject/main/+/mai
 ## How it works
 `pygmalion` works with two layers:
 - **Java layer** provides API for making hooks for `AssetManager` and `Activity`
-- **Native layer** uses for hooking `AssetManager` native functions related with resources. by re-registring `JNI` functions related with resources to
-interact with fetched data (attribute ids, resource values, etc.) before it will be returned.
+- **Native layer** uses for hooking `AssetManager` native functions related with resources. by re-registring native functions related with resources to
+interact with fetched data (attribute ids, resource values, etc.) before it will be returned to call point.
 
-On the **Native layer**, `pygmalion` hooks function with signature `_ZN7android37register_android_content_AssetManagerEP7_JNIEnv`
-that's used to register all `AssetManager` `JNI` functions and dumps original function addresses. Next,
-target functions are found by hardcoded signatures and replaced to the stub functions that calls
-Java functions with logic implementation. This way is more stable than some `ART hooking framework` because there's
-used built-in `JNI` API and tested libraries.
+On the **Native layer**, `pygmalion` hooks function that's used to register all `AssetManager` native functions with signature
+```
+_ZN7android37register_android_content_AssetManagerEP7_JNIEnv
+```
+Next, target functions finds by hardcoded names and signatures from the dump and replaced to the hook functions that calls
+Java implementation functions. This way is more stable than some `ART hooking framework` because there's
+used built-in `JNI` API and tested hooking libraries.
 
 > [!NOTE]
-> For Android N, `pygmalion` disables `@FastNative` optimizations that causes crashes.
-
-> [!TIP]
-> For more details, see headers in the `include/hooks/assetman/api` for native
-> and `com.vologhat.pygmalion.hooks` package for Java
+> For Android N, `pygmalion` disables `@FastNative` optimizations for `AssetManager` native functions
+> that causes crashes.
 
 ## TODO
-- Optimize work with native hooks
-- Add `LayoutInflater` hooks 
-- etc.
+- Add `LayoutInflater` hooks
 
 ## Limitations
-- Now, you can hook only `AssetManager` and `Activity` by default.
-- In the `AssetManager` hooks you can only replace providing resources
-(ex. you cannot add/remove color attribute with related value)
+- You can only hook `AssetManager` and `Activity`.
+- In the `AssetManager` hooks you cannot you cannot add/remove attributes
 
 ## Sub-projects:
-- `library` is a core implementation of `pygmalion` providing API needed for making hooks. 
-- `demo` is an android application developed as a "gallery" for demonstration.  
+- `demo` is an android application developed as a "gallery" for demonstration.
+- `library` is a core implementation of `pygmalion` providing API needed for making hooks.
 - `stub` only provided private android APIs that can't be accessed directly.
 
 ## Use cases
@@ -69,9 +65,6 @@ you have no source code, for example, android app modifications such as [Revance
 [VTLIte](https://github.com/vtosters/lite), etc.
 
 ## Integration
-> [!NOTE]
-> Download the latest [Release version](https://github.com/Andromoda/Pygmalion/releases/latest)
-> arr and add it to your project dependencies
 
 #### build.gradle:
 ```groovy
@@ -98,9 +91,10 @@ dependencies {
 
 ```kotlin
 /*
-* check if Pygmalion is initialized
+* Initialize pygmalion, check if it's initialized
 * and enable hooking 
 */
+Pygmalion.initialize()
 if(Pygmalion.isInitialized()) {
     Pyhmalion.hook()
 }
