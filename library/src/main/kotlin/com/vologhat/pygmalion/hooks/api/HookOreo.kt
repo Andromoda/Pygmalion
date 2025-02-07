@@ -63,24 +63,24 @@ object HookOreo
         defStyleAttr:Int,
         defStyleRes:Int,
         inValues:IntArray,
-        intAttrs:IntArray,
+        inAttrs:IntArray,
         outValues:IntArray,
         outIndices:IntArray,
     ):Boolean
     {
-        resolveAttrsHook(defStyleAttr,defStyleRes,inValues,intAttrs,outValues,outIndices)
+        resolveAttrsHook(defStyleAttr,defStyleRes,inValues,inAttrs,outValues,outIndices)
         return false
     }
     
     @JvmStatic
     fun retrieveAttributes(
         xmlParser:Long,
-        intAttrs:IntArray,
+        inAttrs:IntArray,
         outValues:IntArray,
         outIndices:IntArray,
     ):Boolean
     {
-        retrieveAttrsHook(intAttrs,outValues,outIndices)
+        retrieveAttrsHook(inAttrs,outValues,outIndices)
         return false
     }
 }
