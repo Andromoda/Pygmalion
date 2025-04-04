@@ -8,7 +8,9 @@
 #include <android/api-level.h>
 #include <type_traits>
 #include "AssetManagerHookFactory.h"
+
 #include "macros.h"
+#include "utils.h"
 
 #define ASSET_MANAGER_HOOK(MIN_API,MAX_API,NAMESPACE,NAME,HOOK_IMPL_CLASS,TARGET_FUN_NAME,TARGET_FUN_SIGN,RET_T,...) \
 static RET_T (*orig##NAMESPACE##NAME)(__VA_ARGS__);                                                                  \
@@ -22,10 +24,6 @@ static AssetManagerHook gHook##NAMESPACE##NAME(                                 
     (void**)&orig##NAMESPACE##NAME                                                                                   \
 );                                                                                                                   \
 RET_T hook##NAMESPACE##NAME(__VA_ARGS__)
-
-static inline std::string stripOptimizeFlag(std::string sign)
-{ return sign.substr(sign[0]=='!'); }
-
 #define HOOK_BODY_VOID(NAMESPACE,NAME,env,clz,...) \
 orig##NAMESPACE##NAME(env,clz,##__VA_ARGS__);      \
 const auto& hook=gHook##NAMESPACE##NAME;           \
@@ -33,7 +31,7 @@ static jclass implClz=AssetManagerHookFactory::get().findClass(hook.mJavaImplCla
 static jmethodID hookMtd=env->GetStaticMethodID(   \
         implClz,                                   \
         hook.mFunName.c_str(),                     \
-        stripOptimizeFlag(hook.mFunSign).c_str()); \
+        strip_optimize_flag(hook.mFunSign).c_str());\
 env->CallStaticVoidMethod(implClz,hookMtd,##__VA_ARGS__)
 
 #define HOOK_BODY_T(NAMESPACE,NAME,RET_T,EnvType,env,clz,...) \
@@ -43,7 +41,7 @@ static jclass implClz=AssetManagerHookFactory::get().findClass(hook.mJavaImplCla
 static jmethodID hookMtd=env->GetStaticMethodID(              \
         implClz,                                              \
         hook.mFunName.c_str(),                                \
-        stripOptimizeFlag(hook.mFunSign).c_str());            \
+        strip_optimize_flag(hook.mFunSign).c_str());          \
 env->CallStatic##EnvType##Method(implClz,hookMtd,##__VA_ARGS__);                     \
 return res
 

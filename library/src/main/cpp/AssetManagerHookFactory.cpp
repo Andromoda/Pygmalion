@@ -22,8 +22,8 @@ void AssetManagerHookFactory::init(JNIEnv* env)
 {
     for(const auto& [_,hooks]:mHookMap)
     {
-        const auto hookImplClassName=hooks.front().mJavaImplClass;
-        jclass clz=jni_reflection::find_class(env,hookImplClassName.c_str());
+        const auto& hookImplClassName=hooks.front().mJavaImplClass;
+        auto clz=find_class(env,hookImplClassName);
         clz=(jclass)env->NewGlobalRef(clz);
         mHookImplClassMap[hookImplClassName]=clz;
     }

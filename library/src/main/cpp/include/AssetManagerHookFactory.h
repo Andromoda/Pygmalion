@@ -9,7 +9,8 @@
 #include <set>
 #include <string>
 #include <jni.h>
-#include "reflection.h"
+
+#include "utils.h"
 
 typedef uint32_t api_level;
 
@@ -55,7 +56,9 @@ class AssetManagerHook
 {
 public:
     api_range mSupportedApis;
-    std::string mJavaImplClass,mFunName,mFunSign;
+    std::string mJavaImplClass;
+    std::string mFunName;
+    std::string mFunSign;
     void* mHookFunPtr;
     void** mOrigFunBackup;
 public:
