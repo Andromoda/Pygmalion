@@ -2,16 +2,18 @@
 // Created by vologhat on 10/20/24.
 //
 
-#ifndef PYGMALION_HOOK_REGISTER_NATIVES_H
-#define PYGMALION_HOOK_REGISTER_NATIVES_H
+#ifndef PYGMALION_HOOK_H
+#define PYGMALION_HOOK_H
 
 #include <jni.h>
 #include <android/api-level.h>
 #include <dlfcn.h>
+#include <string>
 
 #include "macros.h"
 #include "sys_paths.h"
 #include "dobby.h"
+#include "utils.h"
 
 #include "AssetManagerHookFactory.h"
 
@@ -42,5 +44,6 @@ static const JNINativeMethod gMethods[]=
 };
 
 jint register_natives(JNIEnv* env);
+void hook(JNIEnv* env);
 
-#endif //PYGMALION_HOOK_REGISTER_NATIVES_H
+#endif //PYGMALION_HOOK_H

@@ -2,7 +2,7 @@
 // Created by vologhat on 10/20/24.
 //
 
-#include "hook_register_natives.h"
+#include "hook.h"
 
 static constexpr uint32_t kAccFastNative=0x00080000;//method (runtime; native only)
 static constexpr uint32_t kAccNative    =0x0100;    //method
@@ -10,19 +10,17 @@ static constexpr uint32_t kAccNative    =0x0100;    //method
 static std::vector< uint32_t*  > gAccessFlagMemmerAddresses;
 static bool isFastNativeDisabled=false;
 
-static inline int getFlagsMemberOffsetForApi();
-static void grabFlagMemberAddresses(JNIEnv* env,jclass asset_man_clz,JNINativeMethod* methods,int nmethods);
-static bool hook_assetman(JNIEnv* env,JNINativeMethod* gMethods,int numMethods);
+static inline int get_flags_member_offset();
+static void grab_flag_member_addrs(JNIEnv* env, jclass asset_man_clz, JNINativeMethod* methods, int nmethods);
+static bool re_register_assetmanager(JNIEnv* env, JNINativeMethod* gMethods, int numMethods);
 
 install_hook_name(RegisterNativeMethods,jint,
                   JNIEnv* env,jclass clz,JNINativeMethod* gMethods,int nMethods)
 {
-    //obtain data
+    //backup original JNINativeMethod array
     gAssetManagerMethods=gMethods;
     gNumAssetManagerMethods=nMethods;
 
-    //don't need to free dynamic memory here
-    //it will be freed during exiting
     gHookAssetManagerMethods=new JNINativeMethod[nMethods];
     memcpy(gHookAssetManagerMethods,gMethods,sizeof(JNINativeMethod)*nMethods);
 
@@ -60,7 +58,15 @@ install_hook_name(RegisterNativeMethods,jint,
     return 0;
 }
 
-void hook_RegisterNatives(JNIEnv* env)
+jint register_natives(JNIEnv* env)
+{
+    if(env->RegisterNatives(env->FindClass("com/vologhat/pygmalion/Pygmalion"),
+                            gMethods,NELEM(gMethods)))
+        return JNI_ERR;
+    return JNI_OK;
+}
+
+void hook(JNIEnv* env)
 {
     using RegisterAssetManager_t=int(*)(JNIEnv*);
 
@@ -81,35 +87,22 @@ void hook_RegisterNatives(JNIEnv* env)
     DobbyDestroy(register_natives_addr);
 }
 
-jint register_natives(JNIEnv* env)
-{
-    if(env->RegisterNatives(env->FindClass("com/vologhat/pygmalion/Pygmalion"),
-                            gMethods,NELEM(gMethods)))
-        return JNI_ERR;
-
-    //we need to call it from JNI_OnLoad,
-    //in other case it's crashed
-    hook_RegisterNatives(env);
-
-    return JNI_OK;
-}
-
 jboolean jis_initialized(JNIEnv*,jclass)
 { return gIsInitialized; }
 
 jboolean jhook(JNIEnv* env,jclass)
 {
     return gIsInitialized
-        &&hook_assetman(env,gHookAssetManagerMethods,gNumAssetManagerMethods);
+           &&re_register_assetmanager(env,gHookAssetManagerMethods,gNumAssetManagerMethods);
 }
 
 jboolean junhook(JNIEnv* env,jclass)
 {
     return gIsInitialized
-       &&hook_assetman(env,gAssetManagerMethods,gNumAssetManagerMethods);
+           &&re_register_assetmanager(env,gAssetManagerMethods,gNumAssetManagerMethods);
 }
 
-static inline bool needDisableFastNative()
+static inline bool need_disable_fastnative()
 {
     return api_range {
         .min_api=__ANDROID_API_N__,
@@ -117,7 +110,7 @@ static inline bool needDisableFastNative()
     }.isSupported(android_get_device_api_level());
 }
 
-static inline int getFlagsMemberOffsetForApi()
+static inline int get_flags_member_offset()
 {
     const auto api_level=android_get_device_api_level();
     int mem_off=-1;
@@ -142,42 +135,36 @@ static inline int getFlagsMemberOffsetForApi()
     return mem_off;
 }
 
-void grabFlagMemberAddresses(JNIEnv* env,jclass asset_man_clz,JNINativeMethod* methods,int nmethods)
+void grab_flag_member_addrs(JNIEnv* env,jclass asset_man_clz,JNINativeMethod* methods,int nmethods)
 {
     for(auto i=0;i<nmethods;++i)
     {
         const auto& mtd=methods[i];
-        std::string sign;
-        if(*mtd.signature=='!')
-        {
-            //remove optimize flag signature
-            const auto len=strlen(mtd.signature+1);
-            sign.resize(len);
-            strncpy(sign.data(),mtd.signature+1,len);
-        }
-        else sign=std::string(mtd.signature);
+        const auto sign=strip_optimize_flag(mtd.signature);//strip optimize flag from JNI signature to resolve method id
 
-        jmethodID jmtd=env->GetStaticMethodID(asset_man_clz, mtd.name, sign.c_str());
+        jmethodID jmtd=env->GetStaticMethodID(asset_man_clz,mtd.name,sign.c_str());
         if(env->ExceptionCheck())
         {
             env->ExceptionClear();
-            jmtd=env->GetMethodID(asset_man_clz, mtd.name, sign.c_str());
+            jmtd=env->GetMethodID(asset_man_clz,mtd.name,sign.c_str());
         }
 
         const auto artMtdAddr=reinterpret_cast< ptrdiff_t >(jmtd);
-        auto flagMemAddr=reinterpret_cast< uint32_t* >(artMtdAddr+getFlagsMemberOffsetForApi());
+        const auto flagMemAddr=reinterpret_cast< uint32_t* >(artMtdAddr +
+                get_flags_member_offset());
 
         gAccessFlagMemmerAddresses.emplace_back(flagMemAddr);
     }
 }
 
-bool hook_assetman(JNIEnv* env,JNINativeMethod* gMethods,int numMethods)
+bool re_register_assetmanager(JNIEnv* env,JNINativeMethod* gMethods,int numMethods)
 {
     const auto asset_man_clz=env->FindClass("android/content/res/AssetManager");
 
-    if(needDisableFastNative())
+    if(need_disable_fastnative())
     {
-        if(gAccessFlagMemmerAddresses.empty())grabFlagMemberAddresses(env,asset_man_clz,gMethods,numMethods);
+        if(gAccessFlagMemmerAddresses.empty())
+            grab_flag_member_addrs(env,asset_man_clz,gMethods,numMethods);
         if(!isFastNativeDisabled)
         {
             for(auto& addr:gAccessFlagMemmerAddresses)*addr&=~kAccFastNative;//clear FastNative flag

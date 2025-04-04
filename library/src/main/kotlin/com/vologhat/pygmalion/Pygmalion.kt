@@ -13,30 +13,28 @@ import com.vologhat.pygmalion.hooks.IAssetHook
 object Pygmalion
 {
     /** Global application instance */
-    @SuppressLint("PrivateApi")
-    @JvmField
-    val app=
-        run {
-            val appGlobalsClz=Class.forName("android.app.AppGlobals")
-            val getInitialApplicationMtd=
-                appGlobalsClz.getDeclaredMethod("getInitialApplication")
-                    .apply { isAccessible=true }
-            getInitialApplicationMtd.invoke(null) as Application
-        }
-    
+    val app by lazy {
+        @SuppressLint("PrivateApi")
+        val appGlobalsClz=Class.forName("android.app.AppGlobals")
+        val getInitialApplicationMtd=
+            appGlobalsClz.getDeclaredMethod("getInitialApplication")
+                .apply { isAccessible=true }
+        getInitialApplicationMtd.invoke(null) as Application
+    }
+
     /** System resources */
     @JvmStatic
     inline val systemResources
         get()=Resources.getSystem()
-    
+
     /** Application resources */
     @JvmStatic
     val resources
         get()=app.resources
-    
+
     /** The activity callbacks for Pygmalion */
     private val activityCallbacks=mutableSetOf<Application.ActivityLifecycleCallbacks>()
-    
+
     /** The asset hooks */
     @JvmField
     internal val assetHooks=mutableSetOf<IAssetHook>()
@@ -51,43 +49,43 @@ object Pygmalion
     /** Checks if initialized successfully */
     @JvmStatic
     external fun isInitialized():Boolean
-    
+
     /** Enables hooking */
     @JvmStatic
     external fun hook():Boolean
-    
+
     /** Disables hooking */
     @JvmStatic
     external fun unhook():Boolean
-    
+
     /** @see Application.registerActivityLifecycleCallbacks */
     @JvmStatic
     fun registerActivityLifecycleCallbacks(vararg callbacks:Application.ActivityLifecycleCallbacks)=
         callbacks.forEach(app::registerActivityLifecycleCallbacks)
-    
+
     @JvmStatic
     fun unregisterAllActivityLifecycleCallbacks()=
         unregisterActivityLifecycleCallbacks(*activityCallbacks.toTypedArray())
-    
+
     /** @see Application.unregisterActivityLifecycleCallbacks */
     @JvmStatic
     fun unregisterActivityLifecycleCallbacks(vararg callbacks:Application.ActivityLifecycleCallbacks)=
         callbacks.forEach(app::unregisterActivityLifecycleCallbacks)
-    
+
     /** Register [hooks] */
     @JvmStatic
     fun registerAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.addAll(hooks)
-    
+
     @JvmStatic
     fun unregisterAllAssetHooks()=
         unregisterAssetHooks(*assetHooks.toTypedArray())
-    
+
     /** Unregister [hooks] */
     @JvmStatic
     fun unregisterAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.removeAll(hooks)
-    
+
     /**
      * The analogue of [Resources.getValue]
      * where you don't need to pass [outValue] every time
@@ -102,7 +100,7 @@ object Pygmalion
         source:Resources=resources,
         outValue:TypedValue=TypedValue(),
     )=outValue.also { source.getValue(resId,it,resolveRefs) }
-    
+
     /**
      * The analogue of [Resources.getValue]
      * where you don't need to pass [outValue] every time.
@@ -134,7 +132,7 @@ object Pygmalion
                 val resId=source.getIdentifier(name,defType,defPackage)
                 getValue(resId,resolveRefs,source,it)
             }
-            
+
             else -> source.getValue(name,it,resolveRefs)
         }
     }

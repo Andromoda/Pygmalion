@@ -1,13 +1,11 @@
 package com.vologhat.pygmalion.hooks.api
 
 import android.util.TypedValue
-import com.vologhat.pygmalion.hooks.applyStyleHook
 import com.vologhat.pygmalion.hooks.applyStyleHookLegacy
 import com.vologhat.pygmalion.hooks.loadResourceValueHook
 import com.vologhat.pygmalion.hooks.loadThemeAttrValueHook
 import com.vologhat.pygmalion.hooks.resolveAttrsHook
 import com.vologhat.pygmalion.hooks.retrieveAttrsHook
-import com.vologhat.pygmalion.utils.NativeIntArray
 
 object HookPreNougat
 {

@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include "hook_register_natives.h"
+#include "hook.h"
 
 extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm,void* reserved)
 {
@@ -17,6 +17,10 @@ extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm,void* reserved)
         LOGE("Failed to register JNI methods");
         return JNI_ERR;
     }
+
+    //we need to call it from JNI_OnLoad,
+    //in other case it's crashed
+    hook(env);
 
     return JNI_VERSION_1_6;
 }
