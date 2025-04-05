@@ -6,8 +6,11 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.res.Resources
 import android.util.TypedValue
+import android.view.LayoutInflater
 import androidx.annotation.Discouraged
 import com.vologhat.pygmalion.hooks.IAssetHook
+import com.vologhat.pygmalion.inflater.PygmalionFactory2
+import com.vologhat.pygmalion.utils.forceSetFactory2
 
 @Suppress("KotlinJniMissingFunction")
 object Pygmalion
@@ -29,7 +32,7 @@ object Pygmalion
 
     /** Application resources */
     @JvmStatic
-    val resources
+    inline val resources
         get()=app.resources
 
     /** The activity callbacks for Pygmalion */
@@ -38,9 +41,10 @@ object Pygmalion
     /** The asset hooks */
     @JvmField
     internal val assetHooks=mutableSetOf<IAssetHook>()
-
+    
     private var isLibraryLoaded=false
 
+    
     fun initialize()
     {
         if(!isLibraryLoaded)System.loadLibrary("pygmalion")
@@ -85,6 +89,25 @@ object Pygmalion
     @JvmStatic
     fun unregisterAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.removeAll(hooks)
+
+    @JvmStatic
+    fun attachToLayoutInflater(inflater:LayoutInflater):PygmalionFactory2
+    {
+        if(inflater.factory2 !is PygmalionFactory2)
+        {
+            val newFactory2=PygmalionFactory2()
+            inflater.forceSetFactory2(newFactory2)
+            return newFactory2
+        }
+        return inflater.factory2 as PygmalionFactory2
+    }
+    
+    @JvmStatic
+    fun detachToLayoutInflater(inflater:LayoutInflater)
+    {
+        val factory2=inflater.factory2
+        if(factory2 is PygmalionFactory2)inflater.forceSetFactory2(factory2.original)
+    }
 
     /**
      * The analogue of [Resources.getValue]
