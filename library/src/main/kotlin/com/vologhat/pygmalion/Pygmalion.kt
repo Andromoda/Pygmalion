@@ -3,6 +3,7 @@
 package com.vologhat.pygmalion
 
 import android.annotation.SuppressLint
+import android.app.AppGlobals
 import android.app.Application
 import android.content.res.Resources
 import android.util.TypedValue
@@ -17,12 +18,7 @@ object Pygmalion
 {
     /** Global application instance */
     val app by lazy {
-        @SuppressLint("PrivateApi")
-        val appGlobalsClz=Class.forName("android.app.AppGlobals")
-        val getInitialApplicationMtd=
-            appGlobalsClz.getDeclaredMethod("getInitialApplication")
-                .apply { isAccessible=true }
-        getInitialApplicationMtd.invoke(null) as Application
+        AppGlobals.getInitialApplication()
     }
 
     /** System resources */
@@ -44,13 +40,13 @@ object Pygmalion
     
     private var isLibraryLoaded=false
 
-    
+    /** Initializes pygmalion */
     fun initialize()
     {
         if(!isLibraryLoaded)System.loadLibrary("pygmalion")
     }
 
-    /** Checks if initialized successfully */
+    /** Checks if pygmalion initialized successfully */
     @JvmStatic
     external fun isInitialized():Boolean
 
@@ -67,6 +63,7 @@ object Pygmalion
     fun registerActivityLifecycleCallbacks(vararg callbacks:Application.ActivityLifecycleCallbacks)=
         callbacks.forEach(app::registerActivityLifecycleCallbacks)
 
+    /** @see Application.unregisterActivityLifecycleCallbacks */
     @JvmStatic
     fun unregisterAllActivityLifecycleCallbacks()=
         unregisterActivityLifecycleCallbacks(*activityCallbacks.toTypedArray())
@@ -90,6 +87,7 @@ object Pygmalion
     fun unregisterAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.removeAll(hooks)
 
+    /** Attach pygmalion's [LayoutInflater.Factory2] to target [inflater] */
     @JvmStatic
     fun attachToLayoutInflater(inflater:LayoutInflater):PygmalionFactory2
     {
@@ -102,8 +100,9 @@ object Pygmalion
         return inflater.factory2 as PygmalionFactory2
     }
     
+    /** Detaches pygmalion's [LayoutInflater.Factory2] from target [inflater] */
     @JvmStatic
-    fun detachToLayoutInflater(inflater:LayoutInflater)
+    fun detachFromLayoutInflater(inflater:LayoutInflater)
     {
         val factory2=inflater.factory2
         if(factory2 is PygmalionFactory2)inflater.forceSetFactory2(factory2.original)
