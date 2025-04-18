@@ -2,247 +2,71 @@
 
 [English](README.md) | [Русский](README_RU.md)
 
-`pygmalion` это автономная `non-root` `android` библиотека, необходимая для кастомизации UI android-приложений
-посредством создания хуков для `AssetManager` и `Activity`
+`pygmalion` это автономная Android-библиотека, необходимая для кастомизации нативного UI
+Android-приложений
+посредством создания хуков для `AssetManager`, `Activity` и `LayoutInflater` **без root-прав, Xposed
+Framework и т.п.**
 
-Поддерживаются устройства с `Android 5.0 - Android 15+` и `x86`, `x86_64`, `arm32`, и `arm64` архитектурами.
+Поддерживаются устройства с `Android 5.0 - Android 15+` и `x86`, `x86_64`, `arm32`, и `arm64`
+архитектурами.
 
 > [!CAUTION]
-> Я и контрибьютеры не несём ответственности за любой причинённый вред, вызванный
-> использованием этой библиотеки в ваших проектах. Также этот проект находится в альфа-стадии, поэтому
-> **обратная совместимость с будущими обновлениями не гарантируется.** 
+> Библиотека находится в **альфа-версии**, поэтому обратная совместимость с будущими версиями не
+> гарантируется.
+> Кроме того, разработчики не несут ответственности за возможные последствия использования
+> библиотеки.
 
 ## Мотивация
-Изначально это была странная идея создания средства для кастомизации приложений без использования `root`, `xposed` и т.п.,
-и я не планировал использовать натив. Но, как оказалось, это был единственный нормальный
-способ осуществить мою задумку перехвата вызовов `AssetManager`. Помимо этого я не хочу использовать какой-нибудь известный 
-`ART hooking framework` из-за его нестабильности по сравнению с моим методом.
 
-## Описание проекта
-`pygmalion` нужен для тех случаев, когда требуется реализовать кастомизацию приложений
-(пр. изменение акцентных цветов) без исходного кода.
-Чтобы использовать эту библиотеку, нужно знать про **комплексные** и **примитивные (хранящие простые значения)** ресурсы
-(см. [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)).
-Также вы можете ознакомиться с исходным кодом [AssetManager](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/AssetManager.java),
-[Resources](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Resources.java),
-[TypedValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
-и [TypedArray](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/TypedArray.java)
-**для определённых платформ**.
+Есть множество решений по кастомизации Android, но, как правило, они используют root-права, Xposed и
+его аналоги
+или иные средства, модифицирующие систему, чтобы достичь оного. Я хотел создать средство, которое
+позволило бы
+добиться возможности кастомизации хотя бы на уровне Android-приложений, но не модифицируя систему.
 
-## Принцип работы
-`pygmalion` работает на двух уровнях:
-- **Java-уровень** предоставляет API для создания хуков для `AssetManager` и `Activity`.
-- **Нативный уровень** используется для перехвата собственных нативных функций `AssetManager`, связанных с ресурсами, путем перерегистрации оных, для
-дальнейших манипуляций с извлеченными данными (идентификаторами атрибутов, значениями ресурсов и т. д.) до того, как они будут возвращены в точку вызова.
+## Применение
 
-На **нативном уровне** `pygmalion` перехватывает функцию, которая используется для регистрации всех `JNI` функций `AssetManager` c сигнатурой
-```
-_ZN7android37register_android_content_AssetManagerEP7_JNIEnv
-```
-Затем целевые функции находятся из дампа по жестко-закодированным именам и сигнатурам и заменяются на функции-хуки, которые вызывают
-Java-функции с реализацией логики. Этот способ более стабильный, чем многие `ART hooking` фреймфорки, потому что там
-используется встроенный `JNI` API и проверенные хукинг-библиотеки.
-
-> [!NOTE]
-> Для Android N `pygmalion` отключает `@FastNative` оптимизации для всех функций `AssetManager`,
-потому что это приводит к сбоям.
-
-## TODO
-- Добавить хуки для `LayoutInflater`
+`pygmalion` идеально подходит для проектов, где необходимо реализовать кастомизацию без доступа к
+исходному коду приложения, например, для таких проектов,
+как [Revanced's mods](https://revanced.app/) или [VTLIte](https://github.com/vtosters/lite).
 
 ## Ограничения
-- Вы можете хукать только `AssetManager` и `Activity`.
-- В хуках `AssetManager` вы не можете добавлять/удалять атрибуты
+
+- `pygmalion` работает только внутри приложений, куда он интегрирован
+- Создание хуков возможно только для `AssetManager`, `Activity` и `LayoutInflater`
+- При создании хуков для `AssetManager` нельзя добавлять или удалять атрибуты, можно только менять
+  значения
+
+## Принцип работы
+
+### **Java-уровень**:
+
+- Предоставляются API для создания хуков для `AssetManager`, `Activity`, и `LayoutInflater`
+- Предоставляются API для инициализации, управления хукингом, добавления/удаления хуков
+
+### **Нативный уровень**:
+
+- Реализованы "прокси-функции" - функции, заменяющие оригинальные нативные функции `AssetManager` и передающие ресурсы на Java-уровень для их модификации перед возвратом в исходную точку
+  вызова (такой подход позволяет вмешиваться в процесс обработки ресурсов, реализуя собственную логику
+  посредством хуков).
+
+> [!NOTE]
+> Для устройств с **Android N** библиотека автоматически отключает оптимизацию [
+`@FastNative`](https://developer.android.com/reference/dalvik/annotation/optimization/FastNative)
+> для всех функций AssetManager, так как это может вызвать сбои.
 
 ## Подпроекты:
+
 - `library` - "ядро" `pygmalion` со всеми API нужными для разработки.
-- `demo` - android-приложение, разработанное как "галерея" для демонстрации.
-- `stub` - обеспечивает прямой доступ к приватным `android` `api`.
+- `demo` - демонстрационное приложение, показывающее возможности библиотеки.
+- `stub` - доступ к приватным API напрямую.
 
-## Юзкейсы
-Я настоятельно рекомендую сто раз подумать, прежде чем использовать эту библиотеку в своих проектах.
-Она изначально предназначена не для нормальной android-разработки, а для случаев когда нет доступа к
-исходному коду. Например, для разработки модификаций android-приложений таких как [Revanced's mods](https://revanced.app/),
-[VTLIte](https://github.com/vtosters/lite) и т.д.
+## Ссылки
 
-## Интеграция
-
-#### build.gradle:
-```groovy
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-}
-```
-
-#### build.gradle.kts:
-```kotlin
-dependencies {
-    implementation(
-        fileTree("libs") {
-            include("*.jar", "*.aar")
-        }
-    )
-}
-```
-
-## Разработка
-
-### Инициализация
-`pygmalion` имеет API для ручного управления:
-
-```kotlin
-/*
-* проверяем проинициализировался ли Pygmalion
-* и включаем хукинг 
-*/
-Pygmalion.initialize()
-if(Pygmalion.isInitialized()) {
-    Pyhmalion.hook()
-}
-```
-
-```kotlin
-//отключаем хукинг
-Pygmalion.unhook()
-```
-
-### Hooks
-
-
-#### Добавление/удаление хуков для `AssetManager`:
-
-Kotlin:
-
-```kotlin
-@JvmField
-val exampleHook =
-    assetHook {
-        onLoadResourceValue { asset ->
-            //etc
-        }
-        onLoadThemeAttrValue { asset ->
-            //etc
-        }
-        onApplyStyle { assets ->
-            //etc
-        }
-        onResolveAttrs { assets ->
-            //etc
-        }
-        onRetrieveAttrs { assets ->
-            //etc
-        }
-    }
-
-fun hook() {
-    //Добавляем хуки для AssetManager
-    Pygmalion.registerAssetHooks(exampleHook,/*...*/)
-}
-
-fun unhook() {
-    //Удаляем хуки для AssetManager
-    Pygmalion.unregisterAssetHooks(exampleHook)
-}
-```
-
-Java:
-
-```java
-public class HooksExample {
-    private static IAssetHook hook = new IAssetHook() {
-        @Override
-        public void onLoadResourceValueHook(int resId, @NotNull TypedValue outValue, boolean resolveAttrs) {
-            //etc
-        }
-
-        @Override
-        public void onLoadThemeAttrValueHook(int resId, @NotNull TypedValue outValue, boolean resolveAttrs) {
-            //etc
-        }
-
-        @Override
-        public void onApplyStyleHook(int defStyleAttr, int defStyleRes, @NotNull int[] inAttrs, @NotNull List<TypedValue> outValues) {
-            //etc
-        }
-
-        @Override
-        public void onResolveAttrsHook(int defStyleAttr, int defStyleRes, @NotNull int[] inValues, @NotNull int[] inAttrs, @NotNull List<TypedValue> outValues) {
-            //etc
-        }
-
-        @Override
-        public void onRetrieveAttrsHook(@NotNull int[] inAttrs, @NotNull List<TypedValue> outValues) {
-            //etc
-        }
-    };
-
-    public static void hook() {
-        //Добавляем хуки для AssetManager
-        Pygmalion.registerAssetHooks(hook,hook);
-    }
-    
-    public static void unhook() {
-        //Удаляем хуки для AssetManager
-        Pygmalion.unregisterAssetHooks(hook,hook);
-    }
-}
-```
-
-#### Add/remove `Activity` hooks:
-
-Kotlin:
-
-```kotlin
-@JvmField
-val exampleHook = activityLifecycleCallbacks {
-    onActivityCreated { activity, bundle : Bundle? ->
-        //etc
-    }
-    
-    onActivityResumed { activity ->
-        //etc
-    }
-    
-    //etc
-}
-
-fun hook() {
-    //Добавляем хуки для Activity
-    Pygmalion.registerActivityLifecycleCallbacks(exampleHook,/*...*/)
-}
-
-fun unhook() {
-    //Удаляем хуки для Activity
-    Pygmalion.unregisterActivityLifecycleCallbacks(exampleHook,/*...*/)
-}
-```
-
-Java:
-
-```java
-public class HooksExample {
-    private static IActivityLifecycleCallback hook = new IActivityLifecycleCallback() {
-        @Override
-        public void onActivityCreated(@NotNull Activity activity, @Nullable Bundle savedInstanceState) {
-            //etc
-        }
-
-        @Override
-        public void onActivityResumed(@NotNull Activity activity) {
-            //etc
-        }
-        
-        //etc
-    };
-
-    public static void hook() {
-        //Добавляем хуки для Activity
-        Pygmalion.registerActivityLifecycleCallbacks(hook,hook);
-    }
-
-    public static void unhook() {
-        //Удаляем хуки для Activity
-        Pygmalion.unregisterActivityLifecycleCallbacks(hook,hook);
-    }
-}
-```
+- [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)
+- [Activity](https://developer.android.com/reference/android/app/Activity)
+- [LayoutInflater](https://developer.android.com/reference/android/view/LayoutInflater)
+- [AssetManager](https://developer.android.com/reference/android/content/res/AssetManager)
+- [Resources](https://developer.android.com/reference/android/content/res/Resources)
+- [TypedValue](https://developer.android.com/reference/android/util/TypedValue)
+- [TypedArray](https://developer.android.com/reference/android/content/res/TypedArray)
