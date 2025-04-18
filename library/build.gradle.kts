@@ -44,4 +44,5 @@ dependencies {
     compileOnly(project(":stub"))
 
     implementation(libs.androidx.annotation.jvm)
+    implementation(libs.hiddenapibypass)
 }

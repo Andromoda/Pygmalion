@@ -1,246 +1,68 @@
 ## Pygmalion
 
-[English](README.md) | [Русский](README_RU.md)
+[English](README.md) | [Russian](README_RU.md)
 
-`pygmalion` is a standalone `non-root` `android` library needed for theming applications
-by creating hooks for `AssetManager` and `Activity`.
+`pygmalion` is a standalone Android library for customizing the native UI of Android applications by
+creating hooks for `AssetManager`, `Activity`, and `LayoutInflater`
+**without requiring root permissions, Xposed Framework, etc.**
 
-Supports `Android 5.0 - Android 15+` devices with `x86`, `x86_64`, `arm32`, and `arm64` architectures.
+Supports devices with `Android 5.0 - Android 15+` and `x86`, `x86_64`, `arm32`, and `arm64`
+architectures.
 
 > [!CAUTION]
-> I and the contributors take no responsibility for any problems caused by the using of this library
-> in your projects.
-> Also this project is in alpha version because **I can't guarantee backward compatibility support with
-> future updates**.
+> The library is in **Alpha** status, so backward compatibility with future versions is not
+> guaranteed. Developers are also not responsible for any potential consequences of using the
+> library.
 
 ## Motivation
-Initially this project was my weird idea to customize android apps without `root`, `xposed`, etc. and I didn't plan to 
-use native. But in the end it was the only way to hook `AssetManager`. Also I don't want to use any
-`ART hooking framework` because they're more unstable than my method.
 
-## Project Description
-`pygmlion` needs for cases when you want to add theming support(ex. changing accent colors),
-but you have no source code of target app.
-To use it, you should know about **complex** and **value-based (primitive)** resources 
-(see [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)),
-also you can check [AssetManager](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/AssetManager.java),
-[Resources](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Resources.java),
-[TypedValue](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/util/TypedValue.java)
-and [TypedArray](https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/TypedArray.java) sources
-**for specific platform**.
+There are many solutions for Android customization, but they usually rely on root access, Xposed, or
+its analogs, or other system-modifying methods to achieve this. I wanted to create a tool that would
+enable customization, at least at the level of Android applications, without modifying the system.
 
-## How it works
-`pygmalion` works with two layers:
-- **Java layer** provides API for making hooks for `AssetManager` and `Activity`
-- **Native layer** uses for hooking `AssetManager` native functions related with resources. by re-registring native functions related with resources to
-interact with fetched data (attribute ids, resource values, etc.) before it will be returned to call point.
+## Usage
 
-On the **Native layer**, `pygmalion` hooks function that's used to register all `AssetManager` native functions with signature
-```
-_ZN7android37register_android_content_AssetManagerEP7_JNIEnv
-```
-Next, target functions finds by hardcoded names and signatures from the dump and replaced to the hook functions that calls
-Java implementation functions. This way is more stable than some `ART hooking framework` because there's
-used built-in `JNI` API and tested hooking libraries.
-
-> [!NOTE]
-> For Android N, `pygmalion` disables `@FastNative` optimizations for `AssetManager` native functions
-> that causes crashes.
-
-## TODO
-- Add `LayoutInflater` hooks
+`pygmalion` is ideal for projects where customization is needed without access to the application's
+source code, such as projects like [Revanced's mods](https://revanced.app/)
+or [VTLIte](https://github.com/vtosters/lite).
 
 ## Limitations
-- You can only hook `AssetManager` and `Activity`.
-- In the `AssetManager` hooks you cannot you cannot add/remove attributes
 
-## Sub-projects:
-- `demo` is an android application developed as a "gallery" for demonstration.
-- `library` is a core implementation of `pygmalion` providing API needed for making hooks.
-- `stub` only provided private android APIs that can't be accessed directly.
+- `pygmalion` is worked only in the applications, where's integrated.
+- Supports hooks only for `AssetManager`, `Activity`, and `LayoutInflater`.
+- `AssetManager` hooks is not supported adding/removing attributes, only value modifications.
 
-## Use cases
-I don't recommend to use this library in the regular android development. It needs for cases when
-you have no source code, for example, android app modifications such as [Revanced's mods](https://revanced.app/),
-[VTLIte](https://github.com/vtosters/lite), etc.
+## How It Works
 
-## Integration
+### **Java Level**:
 
-#### build.gradle:
-```groovy
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-}
-```
+- Provides APIs for creating hooks for `AssetManager`, `Activity`, and `LayoutInflater`
+- Provides APIs for initialization, hook management, adding/removing hooks
 
-#### build.gradle.kts:
-```kotlin
-dependencies {
-    implementation(
-        fileTree("libs") {
-            include("*.jar", "*.aar")
-        }
-    )
-}
-```
+### **Native Level**:
 
-## Development
+- Implemented "proxy functions" - functions that replace the original native `AssetManager` functions
+and pass resources to the Java layer for modification before returning to the original call point (
+this approach allows you to intervene in the resource processing process by implementing your own
+logic using hooks).
 
-### Initialization
- `pygmalion` provides API for manually control:
+> [!NOTE]
+> For devices with Android N, the library automatically disables the [
+`@FastNative`](https://developer.android.com/reference/dalvik/annotation/optimization/FastNative)
+> optimization for all `AssetManager` functions, as it may cause crashes.
 
-```kotlin
-/*
-* Initialize pygmalion, check if it's initialized
-* and enable hooking 
-*/
-Pygmalion.initialize()
-if(Pygmalion.isInitialized()) {
-    Pyhmalion.hook()
-}
-```
+## Subprojects:
 
-```kotlin
-//disable hooking
-Pygmalion.unhook()
-```
+- `library` - the "core" of `pygmalion` with all the APIs needed for development.
+- `demo` - a demonstration app showcasing the library's capabilities.
+- `stub` - direct access to private APIs.
 
-### Hooks
+## Links
 
-#### Add/remove `AssetManager` hooks:
-
-Kotlin:
-
-```kotlin
-@JvmField
-val exampleHook =
-    assetHook {
-        onLoadResourceValue { asset ->
-            //etc
-        }
-        onLoadThemeAttrValue { asset ->
-            //etc
-        }
-        onApplyStyle { assets ->
-            //etc
-        }
-        onResolveAttrs { assets ->
-            //etc
-        }
-        onRetrieveAttrs { assets ->
-            //etc
-        }
-    }
-
-fun hook() {
-    //add AssetManager hooks
-    Pygmalion.registerAssetHooks(exampleHook,/*...*/)
-}
-
-fun unhook() {
-    //remove specific AssetManager hooks
-    Pygmalion.unregisterAssetHooks(exampleHook)
-}
-```
-
-Java:
-
-```java
-public class HooksExample {
-    private static IAssetHook hook = new IAssetHook() {
-        @Override
-        public void onLoadResourceValueHook(int resId, @NotNull TypedValue outValue, boolean resolveAttrs) {
-            //etc
-        }
-
-        @Override
-        public void onLoadThemeAttrValueHook(int resId, @NotNull TypedValue outValue, boolean resolveAttrs) {
-            //etc
-        }
-
-        @Override
-        public void onApplyStyleHook(int defStyleAttr, int defStyleRes, @NotNull int[] inAttrs, @NotNull List<TypedValue> outValues) {
-            //etc
-        }
-
-        @Override
-        public void onResolveAttrsHook(int defStyleAttr, int defStyleRes, @NotNull int[] inValues, @NotNull int[] inAttrs, @NotNull List<TypedValue> outValues) {
-            //etc
-        }
-
-        @Override
-        public void onRetrieveAttrsHook(@NotNull int[] inAttrs, @NotNull List<TypedValue> outValues) {
-            //etc
-        }
-    };
-
-    public static void hook() {
-        //adding AssetManager hooks
-        Pygmalion.registerAssetHooks(hook,hook);
-    }
-    
-    public static void unhook() {
-        //remove specific AssetManager hooks
-        Pygmalion.unregisterAssetHooks(hook,hook);
-    }
-}
-```
-
-#### Add/remove `Activity` hooks:
-
-Kotlin:
-
-```kotlin
-@JvmField
-val exampleHook = activityLifecycleCallbacks {
-    onActivityCreated { activity, bundle : Bundle? ->
-        //etc
-    }
-    
-    onActivityResumed { activity ->
-        //etc
-    }
-    
-    //etc
-}
-
-fun hook() {
-    //adding Activity hooks
-    Pygmalion.registerActivityLifecycleCallbacks(exampleHook,/*...*/)
-}
-
-fun unhook() {
-    //remove specific Activity hooks
-    Pygmalion.unregisterActivityLifecycleCallbacks(exampleHook,/*...*/)
-}
-```
-
-Java:
-
-```java
-public class HooksExample {
-    private static IActivityLifecycleCallback hook = new IActivityLifecycleCallback() {
-        @Override
-        public void onActivityCreated(@NotNull Activity activity, @Nullable Bundle savedInstanceState) {
-            //etc
-        }
-
-        @Override
-        public void onActivityResumed(@NotNull Activity activity) {
-            //etc
-        }
-        
-        //etc
-    };
-
-    public static void hook() {
-        //adding Activity hooks
-        Pygmalion.registerActivityLifecycleCallbacks(hook,hook);
-    }
-
-    public static void unhook() {
-        //remove specific Activity hooks
-        Pygmalion.unregisterActivityLifecycleCallbacks(hook,hook);
-    }
-}
-```
+- [App resources overview](https://developer.android.com/guide/topics/resources/providing-resources)
+- [Activity](https://developer.android.com/reference/android/app/Activity)
+- [LayoutInflater](https://developer.android.com/reference/android/view/LayoutInflater)
+- [AssetManager](https://developer.android.com/reference/android/content/res/AssetManager)
+- [Resources](https://developer.android.com/reference/android/content/res/Resources)
+- [TypedValue](https://developer.android.com/reference/android/util/TypedValue)
+- [TypedArray](https://developer.android.com/reference/android/content/res/TypedArray)
