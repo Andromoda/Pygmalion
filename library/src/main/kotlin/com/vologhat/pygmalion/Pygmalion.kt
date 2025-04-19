@@ -78,6 +78,7 @@ object Pygmalion
     fun registerAssetHooks(vararg hooks:IAssetHook)=
         assetHooks.addAll(hooks)
 
+    /** Unregister all asset hooks */
     @JvmStatic
     fun unregisterAllAssetHooks()=
         unregisterAssetHooks(*assetHooks.toTypedArray())
