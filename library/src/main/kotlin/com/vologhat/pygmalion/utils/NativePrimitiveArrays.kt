@@ -8,14 +8,13 @@ import sun.misc.Unsafe
 /** Unsafe instance used to get/modify natively allocated data */
 @SuppressLint("DiscouragedPrivateApi")
 @JvmField
-internal val UNSAFE=Unsafe::class.java.getDeclaredMethod("getUnsafe").invoke("null") as Unsafe
+internal val UNSAFE=Unsafe::class.java.getDeclaredMethod("getUnsafe").invoke(null) as Unsafe
 
 /** The interface describing interaction with natively primitives to use it in Java layer */
 sealed interface NativeArray<T>
 {
     /** Base allocation address */
     val baseAddr:Long
-    
     /** Length of allocated primitive array */
     val length:Int
     
@@ -23,6 +22,7 @@ sealed interface NativeArray<T>
     operator fun set(index:Int,value:T)
 }
 
+/** Wrapper to work with natively allocated [Byte] array */
 class NativeByteArray(
     override val baseAddr:Long,
     override val length:Int,
@@ -43,6 +43,7 @@ class NativeByteArray(
     }
 }
 
+/** Wrapper to work with natively allocated [Short] array */
 class NativeShortArray(
     override val baseAddr:Long,
     override val length:Int,
@@ -63,6 +64,7 @@ class NativeShortArray(
     }
 }
 
+/** Wrapper to work with natively allocated [Char] array */
 class NativeCharArray(
     override val baseAddr:Long,
     override val length:Int,
@@ -83,6 +85,7 @@ class NativeCharArray(
     }
 }
 
+/** Wrapper to work with natively allocated [Int] array */
 class NativeIntArray(
     override val baseAddr:Long,
     override val length:Int,
@@ -103,6 +106,7 @@ class NativeIntArray(
     }
 }
 
+/** Wrapper to work with natively allocated [Long] array */
 class NativeLongArray(
     override val baseAddr:Long,
     override val length:Int,
@@ -123,6 +127,7 @@ class NativeLongArray(
     }
 }
 
+/** Wrapper to work with natively allocated [Float] array */
 class NativeFloatArray(
     override val baseAddr:Long,
     override val length:Int,
@@ -143,6 +148,7 @@ class NativeFloatArray(
     }
 }
 
+/** Wrapper to work with natively allocated [Double] array */
 class NativeDoubleArray(
     override val baseAddr:Long,
     override val length:Int,
